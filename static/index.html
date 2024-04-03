@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Orders</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border-bottom: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .fine-amount {
+            color: red;
+        }
+
+        .total-fine {
+            font-weight: bold;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Food Orders</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Meal</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Fine Amount</th>
+            </tr>
+        </thead>
+        <tbody id="foodOrders">
+            <!-- Food orders will be dynamically inserted here -->
+        </tbody>
+    </table>
+    <p class="total-fine">Total Fine for the Month: ₹<span id="totalFine"></span></p>
+
+    <script>
+        async function fetchFoodOrders(employee) {
+            const response = await fetch(`/food_orders/${employee}`);
+            const data = await response.json();
+            return data;
+        }
+
+        async function displayFoodOrders() {
+            const employees = new Set(["Ravi", "Shona", "Ram", "Eva", "Kayara", "Shita"]); // Add more employees if needed
+            let totalFineAll = 0;
+
+            for (const employee of employees) {
+                const foodOrders = await fetchFoodOrders(employee);
+                let totalFine = 0;
+
+                foodOrders.forEach((order) => {
+                    const row = `<tr>
+                                    <td>${order.employee}</td>
+                                    <td>${order.meal}</td>
+                                    <td>${order.status}</td>
+                                    <td>${order.date}</td>
+                                    <td class="fine-amount">${order.status === 'PENDING' ? '₹100.00' : 'N/A'}</td>
+                                </tr>`;
+                    document.getElementById("foodOrders").innerHTML += row;
+
+                    if (order.status === 'PENDING') {
+                        totalFine += 100;
+                    }
+                });
+
+                totalFineAll += totalFine;
+            }
+
+            document.getElementById("totalFine").textContent = totalFineAll.toFixed(2);
+        }
+
+        displayFoodOrders();
+    </script>
+</body>
+</html>
